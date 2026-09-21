@@ -369,7 +369,7 @@ st.sidebar.caption("Python • Pandas • NumPy")
 st.sidebar.caption("SDV • CTGAN • Streamlit")
 st.sidebar.caption("Dynamic evaluation and visualization")
 st.sidebar.divider()
-st.sidebar.info("MSc IT Project\n\nSynthetic tabular data generation")
+st.sidebar.info("Name: YOGESH SAHU - SMIT2627179\n\nProject :AI-Based Synthetic Dataset Generation")
 
 
 # ============================================================
