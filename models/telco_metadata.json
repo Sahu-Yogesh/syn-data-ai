@@ -1,0 +1,70 @@
+{
+    "tables": {
+        "telco_customers": {
+            "columns": {
+                "gender": {
+                    "sdtype": "categorical"
+                },
+                "SeniorCitizen": {
+                    "sdtype": "categorical"
+                },
+                "Partner": {
+                    "sdtype": "categorical"
+                },
+                "Dependents": {
+                    "sdtype": "categorical"
+                },
+                "tenure": {
+                    "sdtype": "numerical"
+                },
+                "PhoneService": {
+                    "sdtype": "categorical"
+                },
+                "MultipleLines": {
+                    "sdtype": "categorical"
+                },
+                "InternetService": {
+                    "sdtype": "categorical"
+                },
+                "OnlineSecurity": {
+                    "sdtype": "categorical"
+                },
+                "OnlineBackup": {
+                    "sdtype": "categorical"
+                },
+                "DeviceProtection": {
+                    "sdtype": "categorical"
+                },
+                "TechSupport": {
+                    "sdtype": "categorical"
+                },
+                "StreamingTV": {
+                    "sdtype": "categorical"
+                },
+                "StreamingMovies": {
+                    "sdtype": "categorical"
+                },
+                "Contract": {
+                    "sdtype": "categorical"
+                },
+                "PaperlessBilling": {
+                    "sdtype": "categorical"
+                },
+                "PaymentMethod": {
+                    "sdtype": "categorical"
+                },
+                "MonthlyCharges": {
+                    "sdtype": "numerical"
+                },
+                "TotalCharges": {
+                    "sdtype": "numerical"
+                },
+                "Churn": {
+                    "sdtype": "categorical"
+                }
+            }
+        }
+    },
+    "relationships": [],
+    "METADATA_SPEC_VERSION": "V1"
+}

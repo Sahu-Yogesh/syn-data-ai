@@ -1,0 +1,31 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# VS Code
+.vscode/
+
+# Private datasets
+data/*.csv
+data/*.xlsx
+data/*.json
+
+# Trained models
+models/*.pkl
+models/*.pt
+models/*.pth
+models/*.joblib
+
+# Generated output
+output/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Backups
+*_backup.py
