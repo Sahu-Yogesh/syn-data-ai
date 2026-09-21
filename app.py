@@ -11,7 +11,6 @@ import streamlit as st
 from src.custom_generator import generate_custom_dataset
 from src.ctgan_generator import (
     train_ctgan_model,
-    train_ctgan_with_metadata,
     load_ctgan_model,
     generate_ctgan_data,
     select_reference_columns,
@@ -635,56 +634,85 @@ elif page == "🤖 AI Generator":
             try:
                 reference_data = pd.read_csv(uploaded)
                 st.success(f"Loaded {len(reference_data):,} rows and {len(reference_data.columns)} columns.")
+                st.subheader("Reference Dataset Preview")
                 st.dataframe(reference_data.head(10), use_container_width=True)
 
-                selected_columns = st.multiselect("Columns to use for training", list(reference_data.columns), default=list(reference_data.columns), key="train_columns")
-                if selected_columns:
-                    selected_reference_data = select_reference_columns(reference_data, selected_columns)
-                    st.write(f"Selected columns: {len(selected_columns)}")
+                selected_columns = st.multiselect(
+                    "Columns to use for training",
+                    list(reference_data.columns),
+                    default=list(reference_data.columns),
+                    key="train_columns",
+                )
 
-                    with st.expander("⚙️ Optional advanced metadata settings", expanded=False):
-                        st.caption("Automatic detection is recommended for beginners. Change a type only when you understand the values in that column.")
-                        sdtypes = ["numerical", "categorical", "datetime", "id", "boolean"]
-                        metadata_settings = {}
-                        for column in selected_columns:
-                            series = selected_reference_data[column]
-                            if pd.api.types.is_bool_dtype(series):
-                                default = "boolean"
-                            elif pd.api.types.is_numeric_dtype(series):
-                                default = "numerical"
-                            elif pd.api.types.is_datetime64_any_dtype(series):
-                                default = "datetime"
-                            else:
-                                default = "categorical"
-                            chosen = st.selectbox(f"Type for {column}", sdtypes, index=sdtypes.index(default), key=f"meta_type_{column}")
-                            pii = st.checkbox(f"Contains personal information: {column}", value=False, key=f"meta_pii_{column}")
-                            metadata_settings[column] = {"sdtype": chosen, "pii": pii}
-                    
-                    epochs = st.number_input("Training epochs", min_value=10, max_value=2000, value=300, step=50, key="train_epochs")
-                    model_name = clean_filename(st.text_input("Model name", "custom_ctgan", key="train_model_name"))
+                if selected_columns:
+                    selected_reference_data = select_reference_columns(
+                        reference_data,
+                        selected_columns,
+                    )
+
+                    st.write(f"Selected columns: {len(selected_columns)}")
+                    st.caption(
+                        "The preview below updates to show only the selected training columns."
+                    )
+                    st.dataframe(
+                        selected_reference_data.head(10),
+                        use_container_width=True,
+                    )
+
+                    st.info(
+                        "Automatic metadata detection is enabled. "
+                        "Advanced manual metadata settings have been removed "
+                        "to prevent invalid PII/type combinations."
+                    )
+
+                    epochs = st.number_input(
+                        "Training epochs",
+                        min_value=10,
+                        max_value=2000,
+                        value=300,
+                        step=50,
+                        key="train_epochs",
+                    )
+                    model_name = clean_filename(
+                        st.text_input(
+                            "Model name",
+                            "custom_ctgan",
+                            key="train_model_name",
+                        )
+                    )
                     model_path = MODEL_DIR / f"{model_name}.pkl"
-                    rows = st.number_input("Synthetic rows after training", min_value=1, max_value=100000, value=1000, step=100, key="train_rows")
+                    rows = st.number_input(
+                        "Synthetic rows after training",
+                        min_value=1,
+                        max_value=100000,
+                        value=1000,
+                        step=100,
+                        key="train_rows",
+                    )
 
                     if model_path.exists():
-                        st.warning("A model with this name already exists and will be replaced if you train.")
+                        st.warning(
+                            "A model with this name already exists and will be replaced if you train."
+                        )
 
-                    if st.button("🧠 Train, Save and Generate", type="primary", key="train_generate"):
+                    if st.button(
+                        "🧠 Train, Save and Generate",
+                        type="primary",
+                        key="train_generate",
+                    ):
                         try:
-                            with st.spinner("Training CTGAN. This may take several minutes..."):
-                                if "metadata_settings" in locals() and metadata_settings:
-                                    synthesizer, metadata = train_ctgan_with_metadata(
-                                        data=selected_reference_data,
-                                        model_path=str(model_path),
-                                        metadata_settings=metadata_settings,
-                                        epochs=int(epochs),
-                                    )
-                                else:
-                                    synthesizer, metadata = train_ctgan_model(
-                                        data=selected_reference_data,
-                                        model_path=str(model_path),
-                                        epochs=int(epochs),
-                                    )
-                                synthetic = generate_ctgan_data(synthesizer, int(rows))
+                            with st.spinner(
+                                "Training CTGAN. This may take several minutes..."
+                            ):
+                                synthesizer, metadata = train_ctgan_model(
+                                    data=selected_reference_data,
+                                    model_path=str(model_path),
+                                    epochs=int(epochs),
+                                )
+                                synthetic = generate_ctgan_data(
+                                    synthesizer,
+                                    int(rows),
+                                )
 
                             register_model(
                                 model_path,
@@ -695,12 +723,26 @@ elif page == "🤖 AI Generator":
                                     "epochs": int(epochs),
                                 },
                             )
+
                             st.session_state.ctgan_synthesizer = synthesizer
                             st.session_state.ctgan_model_path = str(model_path)
                             st.session_state.ctgan_generated_data = synthetic
-                            set_current_run(selected_reference_data, synthetic, model_name, "New CTGAN Model", model_path, metadata)
-                            output_path = save_generated_csv(synthetic, f"{model_name}_generated")
-                            st.success(f"Model saved and {len(synthetic):,} rows generated. Output: {output_path.name}")
+                            set_current_run(
+                                selected_reference_data,
+                                synthetic,
+                                model_name,
+                                "New CTGAN Model",
+                                model_path,
+                                metadata,
+                            )
+                            output_path = save_generated_csv(
+                                synthetic,
+                                f"{model_name}_generated",
+                            )
+                            st.success(
+                                f"Model saved and {len(synthetic):,} rows generated. "
+                                f"Output: {output_path.name}"
+                            )
                         except Exception as error:
                             st.error(f"Training failed: {error}")
                 else:
